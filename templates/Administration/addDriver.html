@@ -1,0 +1,43 @@
+{% extends "Administration/ViewBusdriver.html" %}
+{% load static %}
+
+{% block body %}
+<div class="form-container">
+  <h2>Add New Driver</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" placeholder="Enter driver name" required>
+    </div>
+
+    <div class="form-group">
+      <label for="Email">Email</label>
+      <input type="text" id="Email" name="Email" placeholder="Enter driver Email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" placeholder="+91 9876543210" required>
+    </div>
+
+    <div class="form-group">
+      <label for="license">License Number</label>
+      <input type="text" id="license" name="license" placeholder="DL123456" required>
+    </div>
+
+    <div class="form-group">
+      <label for="photo">Upload Photo</label>
+      <input type="file" id="photo" name="photo" accept="image/*">
+    </div>
+
+    
+
+    <div class="form-actions">
+      <button type="submit" class="save-btn">Save Driver</button>
+      <a href="{% url 'viewdriver' %}" class="cancel-btn">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

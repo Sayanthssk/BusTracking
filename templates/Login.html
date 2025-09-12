@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bus Tracker • Demo Access</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Soft light background with gentle motion */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .bg-animated {
+      background: linear-gradient(120deg, #ffffff, #f3f8ff, #ffffff, #f7fafc);
+      background-size: 240% 240%;
+      animation: gradientShift 22s ease infinite;
+    }
+
+    /* Light floating dots for subtle motion */
+    .sparkle::before, .sparkle::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(4px 4px at 20% 30%, rgba(30,58,138,0.08) 0 60%, transparent 61%) no-repeat,
+        radial-gradient(3px 3px at 70% 70%, rgba(30,58,138,0.06) 0 60%, transparent 61%) no-repeat,
+        radial-gradient(3px 3px at 40% 80%, rgba(30,58,138,0.05) 0 60%, transparent 61%) no-repeat,
+        radial-gradient(4px 4px at 85% 25%, rgba(30,58,138,0.07) 0 60%, transparent 61%) no-repeat;
+      background-size: 4px 4px, 3px 3px, 3px 3px, 4px 4px;
+      animation: drift 20s linear infinite;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+    .sparkle::after {
+      animation-duration: 28s;
+      opacity: 0.5;
+      filter: blur(1px);
+    }
+    @keyframes drift {
+      0% { transform: translateY(0px) translateX(0px); }
+      50% { transform: translateY(-14px) translateX(8px); }
+      100% { transform: translateY(0px) translateX(0px); }
+    }
+
+    /* Card entrance */
+    @keyframes liftIn {
+      0% { transform: translateY(12px) scale(0.98); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .enter { animation: liftIn .7s cubic-bezier(.2,.8,.2,1) both; }
+
+    /* Button shine */
+    .shine { position: relative; overflow: hidden; isolation: isolate; }
+    .shine::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.7) 45%, transparent 60%);
+      transform: translateX(-120%);
+    }
+    .shine:hover::after { transition: transform .8s ease; transform: translateX(120%); }
+  </style>
+</head>
+<body class="h-screen overflow-hidden bg-animated flex items-center justify-center p-6 text-slate-800 font-[Inter,_ui-sans-serif]">
+  <div class="absolute inset-0 sparkle"></div>
+
+  <!-- Demo Access Wrapper -->
+  <main class="relative w-full max-w-md">
+    
+
+    <!-- Card -->
+    <section class="enter rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+      <!-- Header -->
+      <header class="px-7 pt-7 pb-4">
+        <div class="flex items-center gap-3">
+          <!-- Bus icon -->
+          <svg width="44" height="44" viewBox="0 0 48 48" class="shrink-0">
+            <defs>
+              <linearGradient id="busGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#22c55e"/>
+                <stop offset="100%" stop-color="#0ea5a7"/>
+              </linearGradient>
+            </defs>
+            <rect x="6" y="8" width="36" height="26" rx="6" fill="url(#busGrad)"/>
+            <rect x="10" y="12" width="28" height="10" rx="2" fill="#ffffffcc"/>
+            <circle cx="16" cy="38" r="3" fill="#0b1220"/>
+            <circle cx="32" cy="38" r="3" fill="#0b1220"/>
+            <rect x="20" y="34" width="8" height="2" rx="1" fill="#0b1220"/>
+          </svg>
+          <div>
+            <h1 class="text-xl font-semibold leading-tight text-slate-900">Bus Tracker Access</h1>
+            <p class="text-sm text-slate-500">Enter  to preview routes</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Divider -->
+      <div class="h-px w-full bg-slate-100"></div>
+
+      <!-- Form -->
+      <form  class="px-7 py-6 space-y-4" autocomplete="off" method="post">
+        {% csrf_token %}
+        <!-- Display Name (Sample) -->
+        <div>
+          <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Display Name (Sample)</label>
+          <div class="relative">
+            <input id="username" name="username" type="text" inputmode="text"
+              class="w-full rounded-xl bg-white text-slate-900 placeholder-slate-400 border border-slate-200 focus:border-slate-300 outline-none px-4 py-3 transition shadow-inner"
+              placeholder="e.g., Sam" />
+            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Access Key with Auto Uppercase -->
+        <div>
+          <label for="accessKey" class="flex items-center justify-between mb-2">
+            <span class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Access Key (Auto Uppercase)</span>
+            <button type="button" id="toggleKey"
+              class="text-[11px] px-2 py-1 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-200 transition text-slate-700"
+              aria-controls="accessKey" aria-pressed="false" aria-label="Show access key">
+              Show
+            </button>
+          </label>
+          <div class="relative">
+            <input id="accessKey" name="password" type="password" inputmode="text"
+              class="w-full rounded-xl bg-white text-slate-900 placeholder-slate-400 border border-slate-200 focus:border-slate-300 outline-none px-4 py-3 pr-10 transition shadow-inner tracking-wider"
+              placeholder="Type letters: they’ll become ABC..." />
+            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 17a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-3.333 0-10 1.667-10 5v1h20v-1c0-3.333-6.667-5-10-5Z"/>
+              </svg>
+            </div>
+          </div>
+          <p id="capsHint" class="mt-2 text-xs text-slate-500">Tip: try typing “abc123” — it becomes “ABC123”.</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-2 flex flex-col items-stretch gap-3">
+          <button type="submit"
+            class="shine w-full inline-flex justify-center items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-4 py-3 transition shadow-lg shadow-emerald-500/20">
+            Continue
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 5l7 7-7 7v-4H4v-6h9V5z"/>
+            </svg>
+          </button>
+
+          <!-- New user registration anchor (placeholder only) -->
+          <p class="text-center text-sm text-slate-600">
+            New user?
+            <a href="/ownerregi" class="font-semibold text-emerald-600 hover:text-emerald-700 underline underline-offset-4">Register</a>
+          </p>
+        </div>
+      </form>
+
+      
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-6 opacity-0 translate-y-3 transition-all">
+    <div class="rounded-full bg-slate-900 text-white px-4 py-2 shadow-xl border border-slate-800 flex items-center gap-2">
+      <svg width="16" height="16" viewBox="0 0 24 24" class="text-emerald-400" fill="currentColor">
+        <path d="M9 16.2l-3.5-3.5L4 14.2l5 5 12-12-1.5-1.5L9 16.2z"/>
+      </svg>
+      <span class="text-sm">Demo submitted. No data saved.</span>
+    </div>
+  </div>
+
+  <script>
+    // Auto-uppercase as you type, preserving caret position
+    const keyInput = document.getElementById('accessKey');
+    keyInput.addEventListener('input', () => {
+      const start = keyInput.selectionStart;
+      const end = keyInput.selectionEnd;
+      const before = keyInput.value;
+      const upper = before.toUpperCase();
+      if (before !== upper) {
+        keyInput.value = upper;
+        requestAnimationFrame(() => { keyInput.setSelectionRange(start, end); });
+      }
+    });
+
+    // Toggle show/hide for Access Key with aria updates
+    const toggle = document.getElementById('toggleKey');
+    toggle.addEventListener('click', () => {
+      const isHidden = keyInput.getAttribute('type') === 'password';
+      keyInput.setAttribute('type', isHidden ? 'text' : 'password');
+      toggle.textContent = isHidden ? 'Hide' : 'Show';
+      toggle.setAttribute('aria-pressed', String(isHidden));
+      toggle.setAttribute('aria-label', isHidden ? 'Hide access key' : 'Show access key');
+      keyInput.focus();
+    });
+
+    
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97dd0e2b004a7e6f',t:'MTc1NzY1NTQ3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

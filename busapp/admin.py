@@ -1,0 +1,12 @@
+from django.contrib import admin
+
+from busapp.models import *
+
+# Register your models here.
+
+admin.site.register(LoginModel)
+admin.site.register(DriverModel)
+admin.site.register(OwnerModel)
+admin.site.register(BusModel)
+admin.site.register(BusRoutesModel)
+admin.site.register(BusStopModel)

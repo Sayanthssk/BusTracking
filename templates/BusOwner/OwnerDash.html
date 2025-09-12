@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Owner Dashboard • Futuristic Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 1) Performance-first base */
+    html { scroll-behavior: smooth; }
+    * { -webkit-tap-highlight-color: transparent; }
+    /* Favor GPU for transforms/opacity only */
+    .will-animate { will-change: transform, opacity; transform: translateZ(0); }
+    *::-webkit-scrollbar{
+        display: none;
+    }
+
+    /* 2) Aurora background */
+    @keyframes aurora {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .bg-aurora {
+      background:
+        radial-gradient(1200px 600px at 20% 20%, rgba(56,189,248,0.22), transparent 60%),
+        radial-gradient(1000px 600px at 80% 30%, rgba(167,139,250,0.22), transparent 60%),
+        radial-gradient(900px 600px at 50% 80%, rgba(52,211,153,0.22), transparent 60%),
+        linear-gradient(120deg, #080c19, #0b1020, #0a0f1e);
+      background-size: 200% 200%;
+      animation: aurora 26s ease infinite;
+    }
+
+    /* Subtle grid overlay for depth */
+    .grid-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+      background-size: 30px 30px, 30px 30px;
+      mask-image: radial-gradient(100% 100% at 50% 50%, rgba(255,255,255,0.9), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Glass cards */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid rgba(148,163,184,0.16);
+      box-shadow:
+        0 10px 30px rgba(2,6,23,0.5),
+        inset 0 0 0 1px rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Hover micro-interactions */
+    .tile { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease, background .3s ease; }
+    .tile:hover {
+      transform: translateY(-3px);
+      border-color: rgba(99,102,241,0.45);
+      box-shadow:
+        0 22px 50px rgba(99,102,241,0.18),
+        0 12px 30px rgba(2,6,23,0.65),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+    }
+
+    /* Sticky header styling (within main scroll) */
+    .sticky-top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: linear-gradient(180deg, rgba(10,15,30,0.85), rgba(10,15,30,0.6));
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(148,163,184,0.14);
+      transition: box-shadow .2s ease, background .2s ease;
+    }
+    .sticky-shadow {
+      box-shadow: 0 12px 24px rgba(0,0,0,0.28);
+      background: linear-gradient(180deg, rgba(10,15,30,0.92), rgba(10,15,30,0.7));
+    }
+
+    /* Anchor offset so headings aren’t hidden under the header */
+    .anchor-offset { scroll-margin-top: 88px; }
+
+    /* Back-to-top pill */
+    .backtop {
+      opacity: 0; transform: translateY(12px) scale(.98);
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .backtop.show {
+      opacity: 1; transform: translateY(0) scale(1);
+    }
+
+    /* 3) Scroll reveal animations (GPU-friendly) */
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .5s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1);
+    }
+  </style>
+</head>
+<body class="bg-aurora text-slate-100 font-[Inter,_ui-sans-serif]">
+  <div class="grid-overlay absolute inset-0"></div>
+
+  <!-- App Shell -->
+  <div class="relative min-h-screen">
+    <!-- Fixed Sidebar (does NOT scroll) -->
+    <aside class="hidden lg:flex fixed inset-y-0 left-0 w-72 flex-col border-r border-white/10 bg-white/5 backdrop-blur-xl">
+      <div class="p-6 border-b border-white/10">
+        <a href="#top" class="flex items-center gap-3">
+          <!-- Logo -->
+          <svg width="34" height="34" viewBox="0 0 48 48" class="shrink-0">
+            <defs>
+              <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#a78bfa"/>
+              </linearGradient>
+            </defs>
+            <rect x="6" y="6" width="36" height="36" rx="10" fill="url(#logo)"/>
+            <circle cx="24" cy="24" r="8" fill="#0a0f1e"/>
+          </svg>
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.18em] text-slate-300">Owner</p>
+            <h1 class="text-lg font-semibold -mt-0.5">Transit Control</h1>
+          </div>
+        </a>
+      </div>
+
+      <!-- Sidebar Links (inner overflow if needed; footer pinned) -->
+      <nav class="px-4 py-4 space-y-1 overflow-y-auto">
+        <a href="#dashboard" class="block rounded-lg px-3 py-2 hover:bg-white/10 transition">Dashboard</a>
+        <a href="#manage-conductor" class="block rounded-lg px-3 py-2 hover:bg-white/10 transition">Manage Conductor</a>
+        <a href="#manage-bus" class="block rounded-lg px-3 py-2 hover:bg-white/10 transition">Manage Bus</a>
+        <a href="#assign-route" class="block rounded-lg px-3 py-2 hover:bg-white/10 transition">Assign Bus Route</a>
+        <div class="my-3 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <a href="#reports" class="block rounded-lg px-3 py-2 hover:bg-white/10 transition">Reports</a>
+        <a href="#settings" class="block rounded-lg px-3 py-2 hover:bg-white/10 transition">Settings</a>
+      </nav>
+
+      <!-- Sidebar footer pinned -->
+      <div class="mt-auto p-4 border-t border-white/10">
+        <a href="#logout" class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-100 font-medium px-4 py-2 border border-white/15 transition">
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main content (ONLY this scrolls) -->
+    <main id="top" class="lg:ml-72 min-h-screen max-h-screen overflow-y-auto scroll-smooth will-animate">
+      <!-- Top bar -->
+      <header id="header" class="sticky-top px-4 md:px-6 py-4 will-animate">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs glass will-animate">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Network
+            </span>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="#profile" class="rounded-full p-2 bg-white/10 border border-white/15 hover:bg-white/20 transition" title="Profile">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-slate-200">
+                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard -->
+      <section id="dashboard" class="anchor-offset px-4 md:px-6">
+        <div class="max-w-6xl mx-auto">
+          <div class="glass rounded-2xl p-6 md:p-8 reveal will-animate">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <div>
+                <h2 class="text-2xl md:text-3xl font-semibold tracking-tight">Owner Dashboard</h2>
+                <p class="text-slate-300 mt-2 max-w-2xl">Smooth, future-ready control. Sidebar is fixed; center scrolls at 60fps.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs uppercase tracking-widest text-slate-400">Status</span>
+                <span class="glass rounded-full px-3 py-1 text-xs">Stable</span>
+              </div>
+            </div>
+
+            <div class="my-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+            <!-- Tiles -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <a href="#manage-conductor" class="glass tile rounded-2xl p-5 flex flex-col gap-4 reveal will-animate">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="rounded-xl p-2 bg-cyan-400/15 border border-cyan-300/20">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="#67e8f9">
+                        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.866 0-7 2.015-7 4.5V20h14v-1.5c0-2.485-3.134-4.5-7-4.5Z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold">Manage Conductor</h3>
+                      <p class="text-sm text-slate-300">Profiles, shifts, availability</p>
+                    </div>
+                  </div>
+                  <span class="text-cyan-300/80">&rarr;</span>
+                </div>
+                <div class="h-10 w-full rounded-lg bg-gradient-to-r from-cyan-400/15 to-transparent"></div>
+              </a>
+
+              <a href="#manage-bus" class="glass tile rounded-2xl p-5 flex flex-col gap-4 reveal will-animate">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="rounded-xl p-2 bg-emerald-400/15 border border-emerald-300/20">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="#86efac">
+                        <path d="M5 7a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v7H5V7Zm1 11a2 2 0 1 1 4 0H6Zm8 0a2 2 0 1 1 4 0h-4Z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold">Manage Bus</h3>
+                      <p class="text-sm text-slate-300">Fleet, maintenance, capacity</p>
+                    </div>
+                  </div>
+                  <span class="text-emerald-300/80">&rarr;</span>
+                </div>
+                <div class="h-10 w-full rounded-lg bg-gradient-to-r from-emerald-400/15 to-transparent"></div>
+              </a>
+
+              <a href="#assign-route" class="glass tile rounded-2xl p-5 flex flex-col gap-4 reveal will-animate">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="rounded-xl p-2 bg-violet-400/15 border border-violet-300/20">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="#c4b5fd">
+                        <path d="M7 3a3 3 0 1 1-2.121.879A3 3 0 0 1 7 3Zm10 10a3 3 0 1 1-2.121.879A3 3 0 0 1 17 13ZM7 7h5a5 5 0 0 1 5 5v1h-2v-1a3 3 0 0 0-3-3H7v-2Z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold">Assign Bus Route</h3>
+                      <p class="text-sm text-slate-300">Link buses, conductors, stops</p>
+                    </div>
+                  </div>
+                  <span class="text-violet-300/80">&rarr;</span>
+                </div>
+                <div class="h-10 w-full rounded-lg bg-gradient-to-r from-violet-400/15 to-transparent"></div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sections with reveal -->
+      <section id="manage-conductor" class="anchor-offset px-4 md:px-6 mt-6">
+        <div class="max-w-6xl mx-auto glass rounded-2xl p-6 md:p-8 reveal will-animate">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold">Manage Conductor</h3>
+            <a href="#dashboard" class="text-sm text-cyan-300 hover:text-cyan-200">Back to dashboard</a>
+          </div>
+          <p class="text-slate-300 mt-2">Anchor-only placeholder. Replace with your real page later.</p>
+          <div class="mt-4 h-24 rounded-xl bg-gradient-to-r from-cyan-400/10 via-transparent to-transparent"></div>
+        </div>
+      </section>
+
+      <section id="manage-bus" class="anchor-offset px-4 md:px-6 mt-6">
+        <div class="max-w-6xl mx-auto glass rounded-2xl p-6 md:p-8 reveal will-animate">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold">Manage Bus</h3>
+            <a href="#dashboard" class="text-sm text-emerald-300 hover:text-emerald-200">Back to dashboard</a>
+          </div>
+          <p class="text-slate-300 mt-2">Anchor-only placeholder. Replace with your real page later.</p>
+          <div class="mt-4 h-24 rounded-xl bg-gradient-to-r from-emerald-400/10 via-transparent to-transparent"></div>
+        </div>
+      </section>
+
+      <section id="assign-route" class="anchor-offset px-4 md:px-6 mt-6">
+        <div class="max-w-6xl mx-auto glass rounded-2xl p-6 md:p-8 reveal will-animate">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold">Assign Bus Route</h3>
+            <a href="#dashboard" class="text-sm text-violet-300 hover:text-violet-200">Back to dashboard</a>
+          </div>
+          <p class="text-slate-300 mt-2">Anchor-only placeholder. Replace with your real page later.</p>
+          <div class="mt-4 h-24 rounded-xl bg-gradient-to-r from-violet-400/10 via-transparent to-transparent"></div>
+        </div>
+      </section>
+
+      <section id="reports" class="anchor-offset px-4 md:px-6 mt-6">
+        <div class="max-w-6xl mx-auto glass rounded-2xl p-6 md:p-8 reveal will-animate">
+          <h3 class="text-xl font-semibold">Reports</h3>
+          <p class="text-slate-300 mt-2">Placeholder anchor for analytics and summaries.</p>
+        </div>
+      </section>
+
+      <section id="settings" class="anchor-offset px-4 md:px-6 mt-6 mb-24">
+        <div class="max-w-6xl mx-auto glass rounded-2xl p-6 md:p-8 reveal will-animate">
+          <h3 class="text-xl font-semibold">Settings</h3>
+          <p class="text-slate-300 mt-2">Placeholder anchor for preferences and configuration.</p>
+        </div>
+      </section>
+
+      <!-- Back to top pill -->
+      <a id="backTop" href="#top" class="backtop fixed right-4 bottom-4 md:right-6 md:bottom-6 z-30">
+        <span class="glass inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm border border-white/15">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-slate-100">
+            <path d="M12 5l7 7h-5v7H10v-7H5l7-7z"/>
+          </svg>
+          Top
+        </span>
+      </a>
+    </main>
+  </div>
+
+  <script>
+    // Explain: This makes animations super smooth as you scroll.
+    // - Uses an observer to reveal sections only when they come into view
+    // - Updates the header shadow and the back-to-top pill using rAF for 60fps
+
+    const main = document.getElementById('top');
+    const header = document.getElementById('header');
+    const backTop = document.getElementById('backTop');
+
+    // Scroll reveal via IntersectionObserver (efficient)
+    const revealItems = Array.from(document.querySelectorAll('.reveal'));
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      }
+    }, { root: main, threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealItems.forEach(el => io.observe(el));
+
+    // rAF loop to react to scroll smoothly
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const y = main.scrollTop || 0;
+
+          // Header shadow intensity
+          if (y > 6) header.classList.add('sticky-shadow');
+          else header.classList.remove('sticky-shadow');
+
+          // Back-to-top visibility
+          if (y > 240) backTop.classList.add('show');
+          else backTop.classList.remove('show');
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+    main.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // initialize on load
+
+    // Optional: smooth anchor jumps already handled by CSS scroll-behavior
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97de2cc2673141be',t:'MTc1NzY2NzIxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

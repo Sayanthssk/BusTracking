@@ -1,0 +1,36 @@
+{% load static %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'css/driver.css' %}">
+<header onclick="window.location='/admindash'">
+  <h1>Owner's Buses</h1>
+</header>
+
+<div class="container">
+
+{% if c %}
+  {% for i in c %}
+    <div class="driver-card">
+      {% if i.image %}
+        <img src="{{ i.image.url }}" alt="{{ i.name }}" class="driver-img">
+      {% else %}
+        <img src="" alt="No Image Available" class="driver-img">
+      {% endif %}
+      <div class="driver-info">
+        <h2>{{ i.name }}</h2>
+        <p><strong>Number:</strong> {{ i.Number }}</p>
+        <p><strong>Type:</strong> {{ i.Type }}</p>
+        <p><strong>Seats:</strong> {{ i.capacity }}</p>
+      </div>
+      <div class="actions">
+        <button class="edit-btn">Block</button>
+        <button class="delete-btn">Unblock</button>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No buses in the database.</p>
+{% endif %}
+
+</div>
+{% endblock %}

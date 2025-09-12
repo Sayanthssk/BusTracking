@@ -1,0 +1,43 @@
+{% load static %}
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bus Drivers</title>
+  <link rel="stylesheet" href="{% static 'css/driver.css' %}">
+</head>
+<body>
+  <header>
+    <h1 onclick="window.location='/admindash'">Bus Drivers</h1>
+    <button class="add-btn" onclick="window.location='/driver'">+ Add Driver</button>
+  </header>
+
+  {% block body %}
+  <div class="container">
+    <!-- Driver Card Example -->
+     {% for i in c %}
+
+    <div class="driver-card">
+      <img src="{{i.photo.url}}" alt="Driver" class="driver-img">
+      <div class="driver-info">
+        <h2>{{ i.name }}</h2>
+        <p><strong>Phone:</strong> {{ i.phone }}</p>
+        <p><strong>License:</strong> {{ i.license }}</p>
+        <p><strong>Email:</strong> {{ i.Email }}</p>
+      </div>
+      <div class="actions">
+        <button class="edit-btn" onclick="window.location='/updatedriver/{{i.id}}'">Edit</button>
+        <button class="delete-btn" onclick="window.location='/deletedriver/{{i.LOGIN_ID.id}}'">Delete</button>
+      </div>
+    </div>
+
+    {% endfor %}
+
+    
+
+    <!-- Add more driver cards here -->
+  </div>
+  {% endblock %}
+</body>
+</html>

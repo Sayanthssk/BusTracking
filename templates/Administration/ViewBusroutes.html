@@ -1,0 +1,68 @@
+{% load static %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'css/routes.css' %}">
+
+<header>
+  <h1 onclick="window.location='/admindash'">Admin – Manage Routes</h1>
+  <button class="add-btn" onclick="openModal()">+ Add Route</button>
+</header>
+
+<div class="container">
+
+{% if routes %}
+  {% for r in routes %}
+    <div class="driver-card">
+      <div class="driver-info">
+        <h2>{{ r.source }} ➝ {{ r.destination }}</h2>
+      </div>
+      <div class="actions">
+        <button class="delete-btn" ><a href="/deleteroute/{{r.id}}" onclick="return confirm('are you sure you need to delete this route!')">Delete</a></button>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="empty-msg">No routes added yet.</p>
+{% endif %}
+
+</div>
+
+<!-- Add Route Modal -->
+<div id="routeModal" class="modal">
+  <div class="form-container">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Add New Route</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="source">Source</label>
+        <input type="text" id="source" name="source" required>
+      </div>
+      <div class="form-group">
+        <label for="destination">Destination</label>
+        <input type="text" id="destination" name="destination" required>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="save-btn">Save Route</button>
+        <a href="javascript:void(0)" class="cancel-btn" onclick="closeModal()">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal() {
+  document.getElementById("routeModal").style.display = "block";
+}
+function closeModal() {
+  document.getElementById("routeModal").style.display = "none";
+}
+window.onclick = function(event) {
+  const modal = document.getElementById("routeModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+}
+</script>
+
+{% endblock %}

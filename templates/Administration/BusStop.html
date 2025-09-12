@@ -1,0 +1,76 @@
+{% load static %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'css/busstops.css' %}">
+
+<header>
+  <h1 onclick="window.location='/admindash'">Admin – Manage Bus Stops</h1>
+  <button class="add-btn" onclick="openModal()">+ Add Bus Stop</button>
+</header>
+
+<div class="container">
+
+{% if stops %}
+  {% for s in stops %}
+    <div class="driver-card">
+      <div class="driver-info">
+        <h2>{{ s.stopname }}</h2>
+        <p><strong>Route:</strong> {{ s.route_id.source }} ➝ {{ s.route_id.destination }}</p>
+      </div>
+      <div class="actions">
+        <button class="delete-btn"><a href="/deletestop/{{s.id}}" onclick="return confirm('Are You sure you want to delete this stop')">Delete</a></button>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="empty-msg">No bus stops added yet.</p>
+{% endif %}
+
+</div>
+
+<!-- Add Bus Stop Modal -->
+<div id="stopModal" class="modal">
+  <div class="form-container">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Add New Bus Stop</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="route_id">Select Route</label>
+        <select id="route_id" name="route_id" required>
+          <option value="" disabled selected>-- Select Route --</option>
+          {% for r in routes %}
+            <option value="{{ r.id }}">{{ r.source }} ➝ {{ r.destination }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="stopname">Stop Name</label>
+        <input type="text" id="stopname" name="stopname" required>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn">Save Stop</button>
+        <a href="javascript:void(0)" class="cancel-btn" onclick="closeModal()">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal() {
+  document.getElementById("stopModal").style.display = "block";
+}
+function closeModal() {
+  document.getElementById("stopModal").style.display = "none";
+}
+window.onclick = function(event) {
+  const modal = document.getElementById("stopModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+}
+</script>
+
+{% endblock %}
