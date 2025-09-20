@@ -118,6 +118,27 @@ class DeleteStopView(View):
         c = BusStopModel.objects.get(id = id)
         c.delete()
         return redirect('stops')
+    
+class VerifyOwnerView(View):
+    def get(self, request):
+        c = OwnerModel.objects.all()
+        return render(request, 'Administration/VerifyOwner.html', {'owner': c})
+    
+class AcceptOwner(View):
+    def get(self, request, id):
+        c = OwnerModel.objects.get(id=id)
+        c.Login_ID.usertype = "Owner"
+        c.Login_ID.save()
+        return redirect('verifyowner')
+    
+class RejectOwner(View):
+    def get(self, request, id):
+        c = OwnerModel.objects.get(id=id)
+        c.Login_ID.usertype = "Rejected"
+        c.Login_ID.save()
+        return redirect('verifyowner')
+
+
 
 
 # /////////////////////////////////////////////////////////////////////////// Owner Module ////////////////////////////////////////////
@@ -129,7 +150,7 @@ class RegisterOwnerView(View):
         c = OwnerForm(request.POST, request.FILES)
         if c.is_valid():
             d = c.save(commit=False)
-            d.Login_ID = LoginModel.objects.create(username = d.Email, password = request.POST['password'], usertype='Owner')
+            d.Login_ID = LoginModel.objects.create(username = d.Email, password = request.POST['password'], usertype='Pending')
             d.save()
             return redirect('login')
         

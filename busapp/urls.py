@@ -15,6 +15,9 @@ urlpatterns = [
     path('deleteroute/<int:id>', DeleteRoutes.as_view(), name='deleteroute'),
     path('stops', BusStopsView.as_view(), name='stops'),
     path('deletestop/<int:id>', DeleteStopView.as_view(), name='deletestop'),
+    path('verifyowner', VerifyOwnerView.as_view(), name='verifyowner'),
+    path('accept/owner/<int:id>', AcceptOwner.as_view(), name='accept/owner'),
+    path('reject/owner/<int:id>', RejectOwner.as_view(), name='reject/owner'),
 
 
 # /////////////////////////////////////////////////////////////////////////////// Owner View ////////////////////////////////////////////////

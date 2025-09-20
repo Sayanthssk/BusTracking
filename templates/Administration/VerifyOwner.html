@@ -1,0 +1,46 @@
+{% load static %}
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Owner</title>
+  <link rel="stylesheet" href="{% static 'css/driver.css' %}"> <!-- keep your CSS here -->
+</head>
+<body>
+
+  <header>
+    <h1>Owner Verification</h1>
+  </header>
+
+  <div class="container">
+
+    {% for i in owner %}
+    <!-- Example owner card -->
+    <div class="driver-card">
+      <img src="{{ i.image.url }}" alt="Owner" class="driver-img">
+      <div class="driver-info">
+        <h2>{{ i.Fullname }}</h2>
+        <p>Email: {{ i.Email }}</p>
+        <p>Phone: +91 {{ i.phone }}</p>
+        <p>Business: {{ i.address }}</p>
+        {% if  i.Login_ID.usertype == "Owner" %}
+        <p >Status: <span style="color: green; font-weight: 500;">Active</span> </p>
+        {% elif i.Login_ID.usertype == "Pending" %}
+        <p>Status: <span style="color: orange; font-weight: 500;">{{ i.Login_ID.usertype }}</span> </p>
+        {% else %}
+        <p>Status: <span style="color: rgb(174, 0, 0); font-weight: 500;">{{ i.Login_ID.usertype }}</span> </p>
+        {% endif %}
+
+      </div>
+      <div class="actions">
+        <button class="edit-btn" onclick="window.location='/accept/owner/{{i.id}}'">Accept</button>
+        <button class="delete-btn" onclick="window.location='reject/owner/{{i.id}}'">Reject</button>
+      </div>
+    </div>
+    {% endfor %}
+
+   
+
+</body>
+</html>
