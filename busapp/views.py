@@ -157,3 +157,22 @@ class RegisterOwnerView(View):
 class OwnerDashView(View):
     def get(self, request):
         return render(request, 'BusOwner/OwnerDash.html')
+    
+
+class OwnerViewBus(View):
+    def get(self, request):
+        c = BusModel.objects.filter(OwnerId__Login_ID__id = request.session['login_id'])
+        return render(request, 'BusOwner/OwnerViewBus.html',{'c':c})
+    
+
+class AddBusView(View):
+    def get(self, request):
+        return render(request, 'BusOwner/AddBus.html')
+    def post(self, request):
+        c = BusForm(request.POST, request.FILES)
+        d = OwnerModel.objects.get(Login_ID__id = request.session['login_id'])
+        if c.is_valid():
+            reg = c.save(commit=False)
+            reg.OwnerId = d
+            reg.save()
+            return redirect('/ownerviewbus')

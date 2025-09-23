@@ -44,8 +44,8 @@ header {
     }
 
     .driver-card {
-      width: 320px;
-      height: 280px;
+        width: 320px;
+        height: 280px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);

@@ -1,0 +1,45 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/dash.css' %}">
+
+<header onclick="window.location='/ownerdash'">
+  <h1>Add New Bus</h1>
+</header>
+
+<div class="container">
+  <div class="driver-card">
+    <form method="POST" enctype="multipart/form-data" class="driver-info">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="name">Bus Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter bus name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Number">Bus Number</label>
+        <input type="text" id="Number" name="Number" placeholder="Enter bus number" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Type">Bus Type</label>
+        <input type="text" id="Type" name="Type" placeholder="e.g. AC, Sleeper, Mini" required>
+      </div>
+
+      <div class="form-group">
+        <label for="capacity">Seating Capacity</label>
+        <input type="number" id="capacity" name="capacity" placeholder="Enter seat capacity" required>
+      </div>
+
+      <div class="form-group">
+        <label for="image">Bus Image</label>
+        <input type="file" id="image" name="image" accept="image/*">
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="edit-btn">Save Bus</button>
+        <a href="/ownerdash" class="delete-btn" style="text-align:center; line-height:2.4rem;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

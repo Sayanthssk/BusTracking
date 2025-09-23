@@ -23,3 +23,8 @@ class BusStopForm(ModelForm):
     class Meta:
         model = BusStopModel
         fields = '__all__'
+
+class BusForm(ModelForm):
+    class Meta:
+        model = BusModel
+        fields = '__all__'

@@ -23,5 +23,7 @@ urlpatterns = [
 # /////////////////////////////////////////////////////////////////////////////// Owner View ////////////////////////////////////////////////
     path('ownerregi', RegisterOwnerView.as_view(), name='ownerregi'),
     path('ownerdash', OwnerDashView.as_view(), name='ownerdash'),
+    path('ownerviewbus', OwnerViewBus.as_view(), name='ownerviewbus'),
+    path('addbus', AddBusView.as_view(), name='addbus'),
     
 ]
