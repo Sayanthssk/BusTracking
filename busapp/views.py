@@ -139,7 +139,25 @@ class RejectOwner(View):
         return redirect('verifyowner')
 
 
+class VerifyAssignedRoute(View):
+    def get(self, request):
+        c = AssignBusRoute.objects.all()
+        return render(request,'Administration/VerifyAssignedRoutes.html', {'assigned':c})
+    
 
+class AcceptAssignment(View):
+    def get(self, request,id):
+        c = AssignBusRoute.objects.get(id=id)
+        c.status = "Accepted"
+        c.save()
+        return redirect('/verifybusassigned')
+
+class RejectAssignment(View):
+    def get(self, request,id):
+        c = AssignBusRoute.objects.get(id=id)
+        c.status = "Rejected"
+        c.save()
+        return redirect('/verifybusassigned')
 
 # /////////////////////////////////////////////////////////////////////////// Owner Module ////////////////////////////////////////////
 
@@ -176,3 +194,54 @@ class AddBusView(View):
             reg.OwnerId = d
             reg.save()
             return redirect('/ownerviewbus')
+        
+
+
+class AssignBusRouteView(View):
+    def get(self, request):
+        c = request.session['login_id']
+
+        # All routes
+        routes = BusRoutesModel.objects.all()
+
+        # All buses owned by the owner (for edit dropdown)
+        all_buses = BusModel.objects.filter(OwnerId__Login_ID__id=c)
+
+        # Buses not assigned yet (for add dropdown)
+        unassigned_buses = all_buses.exclude(
+            id__in=AssignBusRoute.objects.values_list("BusId_id", flat=True)
+        )
+
+        # Assigned routes for table
+        assigned = AssignBusRoute.objects.filter(BusId__OwnerId__Login_ID__id=c)
+
+        return render(request, 'BusOwner/AssignBusRoute.html', {
+            'routes': routes,
+            'bus': unassigned_buses,      # for Add Modal
+            'all_buses': all_buses,       # for Edit Modal
+            'assigned': assigned
+        })
+
+    def post(self, request):
+        form = AssignBusRouteForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('/assignbusroute')
+
+
+class EditAssignedBusRoute(View):
+    def post(self, request, id):
+        c = AssignBusRoute.objects.get(id=id)
+        d = AssignBusRouteForm(request.POST, instance=c)
+        if d.is_valid():
+            reg = d.save(commit=False)
+            reg.status = 'Pending'
+            reg.save()
+            return redirect('/assignbusroute')
+        
+
+class DeleteAssignment(View):
+    def get(self, request, id):
+        c = AssignBusRoute.objects.get(id=id)
+        c.delete()
+        return redirect('/assignbusroute')

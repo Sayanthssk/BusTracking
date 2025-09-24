@@ -227,3 +227,17 @@ header h1 {
   header h1 { font-size: 1.2rem; }
   .driver-info h2 { font-size: 1.1rem; }
 }
+
+.form-group select {
+  padding: .6rem .8rem;
+  border-radius: .5rem;
+  border: 1px solid rgba(148,163,184,0.2);
+  background: rgba(255,255,255,0.05);
+  color: #f9fafb;
+  font-size: 0.95rem;
+}
+.form-group select:focus {
+  outline: none;
+  border-color: rgba(99,102,241,0.6);
+  background: rgba(255,255,255,0.08);
+}

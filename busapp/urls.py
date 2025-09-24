@@ -18,6 +18,9 @@ urlpatterns = [
     path('verifyowner', VerifyOwnerView.as_view(), name='verifyowner'),
     path('accept/owner/<int:id>', AcceptOwner.as_view(), name='accept/owner'),
     path('reject/owner/<int:id>', RejectOwner.as_view(), name='reject/owner'),
+    path('verifybusassigned', VerifyAssignedRoute.as_view(), name='verifybusassigned'),
+    path('assign/accept/<int:id>', AcceptAssignment.as_view(), name='/assign/accept/'),
+    path('assign/reject/<int:id>', RejectAssignment.as_view(), name='/assign/reject/'),
 
 
 # /////////////////////////////////////////////////////////////////////////////// Owner View ////////////////////////////////////////////////
@@ -25,5 +28,8 @@ urlpatterns = [
     path('ownerdash', OwnerDashView.as_view(), name='ownerdash'),
     path('ownerviewbus', OwnerViewBus.as_view(), name='ownerviewbus'),
     path('addbus', AddBusView.as_view(), name='addbus'),
+    path('assignbusroute', AssignBusRouteView.as_view(), name='assignbusroute'),
+    path('assignbusroute/edit/<int:id>/', EditAssignedBusRoute.as_view(), name='editassignment'),
+    path('assignbusroute/delete/<int:id>/', DeleteAssignment.as_view(), name='deleteassignment'),
     
 ]

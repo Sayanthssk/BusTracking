@@ -45,3 +45,13 @@ class BusModel(models.Model):
     capacity = models.CharField(max_length=100, null=True, blank=True)
     image = models.FileField(upload_to='busimages', null=True, blank=True)
     
+
+class AssignBusRoute(models.Model):
+    BusId = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
+    RouteId = models.ForeignKey(BusRoutesModel, on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(max_length=100, null=True, blank=True, default='Pending')
+
+
+class AssignBusDriver(models.Model):
+    BusId = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
+    DriverId = models.ForeignKey(DriverModel, on_delete=models.CASCADE, null=True, blank=True)  

@@ -1,0 +1,65 @@
+{% load static %}
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Assigned Routes</title>
+  <link rel="stylesheet" href="{% static 'css/driver.css' %}"> <!-- reuse same CSS -->
+</head>
+<body>
+
+  <header >
+    <h1 onclick="window.location='/admindash'">Assigned Bus Routes</h1>
+  </header>
+
+  <div class="container">
+
+    {% if assigned %}
+      {% for a in assigned %}
+      <div class="driver-card">
+        <!-- Bus image, else placeholder -->
+        <img src="{{ a.BusId.image.url|default:'https://via.placeholder.com/150' }}" 
+             alt="Bus Image" class="driver-img">
+        
+        <div class="driver-info">
+          <h2>{{ a.BusId.name }} - {{ a.BusId.Number }}</h2>
+          <p>Route: {{ a.RouteId.source }} - {{ a.RouteId.destination }}</p>
+          <p>Status: 
+            {% if a.status == 'Pending' %}
+              <span style="color: orange; font-weight: 500;">{{ a.status }}</span>
+            {% elif a.status == 'Accepted' %}
+              <span style="color: green; font-weight: 500;">{{ a.status }}</span>
+            {% else %}
+              <span style="color: red; font-weight: 500;">{{ a.status }}</span>
+            {% endif %}
+          </p>
+        </div>
+
+        {% if a.status == 'Pending' %}
+        <div class="actions">
+          <button class="edit-btn" onclick="window.location='/assign/accept/{{ a.id }}'">Accept</button>
+          <button class="delete-btn" onclick="window.location='/assign/reject/{{ a.id }}'">Reject</button>
+        </div>
+        {% elif a.status == 'Accepted' %}
+        <div class="actions">
+          <button class="edit-btn" disabled>Accept</button>
+          <button class="delete-btn" onclick="window.location='/assign/reject/{{ a.id }}'">Reject</button>
+        </div>
+        {% elif a.status == 'Rejected' %}
+        <div class="actions">
+          <button class="edit-btn" onclick="window.location='/assign/accept/{{ a.id }}'">Accept</button>
+          <button class="delete-btn" disabled>Reject</button>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="text-align:center; font-weight:500; margin-top:20px;">No Assigned Routes Found</p>
+    {% endif %}
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+{% load static %}
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assign Bus to Route</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/dash.css' %}"> <!-- your same CSS file -->
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Bus – Route Assignment</h1>
+  </header>
+<div class="container mt-5 text-center">
+
+  
+
+  <!-- Centered Table -->
+<div class="d-flex justify-content-center">
+  <table class="table table-dark table-striped table-bordered align-middle" style="width: 900px; margin-left: 180px;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Bus</th>
+        <th>Route</th>
+        <th>Status</th>
+        <th>
+          <button class="btn btn-outline-primary" style="margin-left: 50px;" data-bs-toggle="modal" data-bs-target="#assignModal">+</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if assigned %}
+        {% for i in assigned %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ i.BusId.name }} - {{ i.BusId.Number }}</td>
+          <td>{{ i.RouteId.source }} - {{ i.RouteId.destination }}</td>
+          {% if i.status == "Pending" %}
+          <td style="color: orange;"><b>{{ i.status }}</b></td>
+          {% elif i.status == "Accepted" %}
+          <td style="color: green;"><b>{{ i.status }}</b></td>
+          {% elif i.status == "Rejected" %}
+          <td style="color: red;"><b>{{ i.status }}</b></td>
+          {% else %}
+          <td>Send Complaint To Admin</td>
+          {% endif %}
+          <td>
+            <button class="btn btn-sm btn-warning editBtn" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editModal"
+                    data-id="{{ i.id }}"
+                    data-busid="{{ i.BusId.id }}"
+                    data-routeid="{{ i.RouteId.id }}">
+              Edit
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="window.location='/assignbusroute/delete/{{i.id}}/'">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="4" class="text-center">No Signed Buses</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background:#111827; color:#f9fafb; border-radius:12px;">
+        <div class="modal-header">
+          <h5 class="modal-title" id="assignModalLabel">Assign Bus to Route</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="/assignbusroute">
+            {% csrf_token %}
+            <!-- Bus Select -->
+            <div class="form-group mb-3">
+              <label for="busSelect">Select Bus</label>
+              <select id="busSelect" name="BusId" class="form-select" required>
+                <option value="">-- Choose a Bus --</option>
+                {% for i in bus %}
+                <option value="{{i.id}}" style="color: black;">{{ i.name }} - {{ i.Number }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Route Select -->
+            <div class="form-group mb-3">
+              <label for="routeSelect">Select Route</label>
+              <select id="routeSelect" name="RouteId" class="form-select" required>
+                <option value="">-- Choose a Route --</option>
+                {% for i in routes %}
+                <option value="{{i.id}}" style="color: black;">{{ i.source }} - {{ i.destination }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Assign</button>
+        </div>
+          </form>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#111827; color:#f9fafb; border-radius:12px;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Edit Bus Assignment</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="editForm">
+          {% csrf_token %}
+          <!-- Bus Select -->
+          <div class="form-group mb-3">
+            <label for="editBusSelect">Select Bus</label>
+            <select id="editBusSelect" name="BusId" class="form-select">
+              <option value="">-- Choose a Bus --</option>
+              {% for i in all_buses %}
+                <option value="{{ i.id }}" style="color:black;">{{ i.name }} - {{ i.Number }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Route Select -->
+          <div class="form-group mb-3">
+            <label for="editRouteSelect">Select Route</label>
+            <select id="editRouteSelect" name="RouteId" class="form-select">
+              <option value="">-- Choose a Route --</option>
+              {% for i in routes %}
+              <option value="{{ i.id }}" style="color:black;">{{ i.source }} - {{ i.destination }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-warning">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  const editButtons = document.querySelectorAll('.editBtn');
+  const editForm = document.getElementById('editForm');
+  const busSelect = document.getElementById('editBusSelect');
+  const routeSelect = document.getElementById('editRouteSelect');
+
+  editButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const assignmentId = btn.dataset.id;
+      const busId = btn.dataset.busid;
+      const routeId = btn.dataset.routeid;
+
+      // Set form action dynamically
+      editForm.action = `/assignbusroute/edit/${assignmentId}/`;
+
+      // Select current values
+      busSelect.value = busId;
+      routeSelect.value = routeId;
+    });
+  });
+</script>
+</body>
+</html>
