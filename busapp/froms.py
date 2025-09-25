@@ -34,3 +34,8 @@ class AssignBusRouteForm(ModelForm):
     class Meta:
         model = AssignBusRoute
         fields = '__all__'
+
+class AssignBusDriverForm(ModelForm):
+    class Meta:
+        model = AssignBusDriver
+        fields = '__all__'

@@ -245,3 +245,56 @@ class DeleteAssignment(View):
         c = AssignBusRoute.objects.get(id=id)
         c.delete()
         return redirect('/assignbusroute')
+    
+
+class AssignDriver(View):
+    def get(self, request):
+        c = request.session['login_id']
+
+        # All buses owned by the owner (for edit dropdown)
+        all_buses = BusModel.objects.filter(OwnerId__Login_ID__id=c)
+
+        # Buses not assigned yet (for add dropdown)
+        unassigned_buses = all_buses.exclude(
+            id__in=AssignBusDriver.objects.values_list("BusId_id", flat=True)
+        )
+
+        # All drivers
+        all_drivers = DriverModel.objects.all()
+
+        # Drivers not yet assigned (for add dropdown)
+        unassigned_drivers = all_drivers.exclude(
+            id__in=AssignBusDriver.objects.values_list("DriverId_id", flat=True)
+        )
+
+        # Assigned bus-driver records for table
+        assigned = AssignBusDriver.objects.filter(BusId__OwnerId__Login_ID__id=c)
+
+        return render(request, 'BusOwner/AssignBusDriver.html', {
+            'drivers': unassigned_drivers,   
+            'bus': unassigned_buses,         
+            'all_buses': all_buses,          
+            'all_drivers': all_drivers,      
+            'assigned': assigned
+        })
+
+
+    def post(self, request):
+        c = AssignBusDriverForm(request.POST)
+        if c.is_valid():
+            c.save()
+            return redirect('/assigndriver')
+
+class DeleteAssignedDriver(View):
+    def get(self, request, D_id):
+        c = AssignBusDriver.objects.get(id = D_id)
+        c.delete()
+        return redirect('/assigndriver')
+    
+class EditAssignedDriver(View):
+    def post(self, request, D_id):
+        c = AssignBusDriver.objects.get(id = D_id)
+        d = AssignBusDriverForm(request.POST, instance=c)
+        if d.is_valid():
+            d.save()
+            return redirect('/assigndriver')

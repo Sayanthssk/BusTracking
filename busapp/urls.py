@@ -31,5 +31,7 @@ urlpatterns = [
     path('assignbusroute', AssignBusRouteView.as_view(), name='assignbusroute'),
     path('assignbusroute/edit/<int:id>/', EditAssignedBusRoute.as_view(), name='editassignment'),
     path('assignbusroute/delete/<int:id>/', DeleteAssignment.as_view(), name='deleteassignment'),
-    
+    path('assigndriver', AssignDriver.as_view(), name='assigndriver'),
+    path('assigndriver/delete/<int:D_id>/', DeleteAssignedDriver.as_view(), name='delete'),
+    path('assigndriver/edit/<int:D_id>/', EditAssignedDriver.as_view(), name='edit'),
 ]
