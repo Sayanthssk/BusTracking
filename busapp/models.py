@@ -55,3 +55,27 @@ class AssignBusRoute(models.Model):
 class AssignBusDriver(models.Model):
     BusId = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
     DriverId = models.ForeignKey(DriverModel, on_delete=models.CASCADE, null=True, blank=True)  
+
+
+class ConductorModel(models.Model):
+    BusId = models.ForeignKey(BusModel, on_delete=models.CASCADE, null= True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    phoneno = models.BigIntegerField(null=True,blank=True)
+    Email = models.EmailField(null=True, blank=True)
+    Address = models.TextField(null=True, blank=True)
+    Idproof = models.FileField(upload_to='Id_Proof/', null=True)
+
+
+class WorkShopModel(models.Model):
+    Login_Id = models.ForeignKey(LoginModel, on_delete=models.CASCADE, null=True, blank=True)
+    Fullname = models.CharField(max_length=100, null=True, blank=True)
+    Age = models.IntegerField(null=True, blank=True)
+    Phone = models.BigIntegerField(null=True, blank=True)
+    Place = models.CharField(max_length=100, null=True, blank=True)
+    WorshopName = models.CharField(max_length=100, null=True)
+
+
+class AssignWorkshopModel(models.Model):
+    BusId = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
+    Workid = models.ForeignKey(WorkShopModel, on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(max_length=100, null=True, blank=True)

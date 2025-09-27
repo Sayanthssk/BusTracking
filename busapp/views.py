@@ -194,7 +194,7 @@ class AddBusView(View):
             reg.OwnerId = d
             reg.save()
             return redirect('/ownerviewbus')
-        
+
 
 
 class AssignBusRouteView(View):

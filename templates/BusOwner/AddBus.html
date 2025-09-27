@@ -1,173 +1,62 @@
 {% load static %}
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assign Driver to Bus</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Add New Bus</title>
   <link rel="stylesheet" href="{% static 'css/dash.css' %}">
 </head>
 <body>
 
   <!-- Header -->
   <header>
-    <h1>Bus – Driver Assignment</h1>
+    <h1>Add New Bus</h1>
   </header>
 
-  <div class="container mt-5 text-center">
-    <!-- Centered Table -->
-    <div class="d-flex justify-content-center">
-      <table class="table table-dark table-striped table-bordered align-middle" style="width: 900px; margin-left: 180px;">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Bus</th>
-            <th>Driver</th>
-            <th>
-              <button class="btn btn-outline-primary" style="margin-left: 50px;" data-bs-toggle="modal" data-bs-target="#assignModal">+</button>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if assigned %}
-            {% for i in assigned %}
-            <tr>
-              <td>{{ forloop.counter }}</td>
-              <td>{{ i.BusId.name }} - {{ i.BusId.Number }}</td>
-              <td>{{ i.DriverId.name }} - {{ i.DriverId.license }}</td>
-              <td>
-                <button class="btn btn-sm btn-warning editBtn" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editModal"
-                        data-id="{{ i.id }}"
-                        data-busid="{{ i.BusId.id }}"
-                        data-driverid="{{ i.DriverId.id }}">
-                  Edit
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="window.location='/assigndriver/delete/{{i.id}}/'">Delete</button>
-              </td>
-            </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="4" class="text-center">No Assigned Drivers</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <div class="container" style="display:flex; justify-content:center; margin-top:40px;">
+    <div class="bus-card" style="width:500px;">
+      <div class="driver-info">
+        <h2 style="text-align:center; margin-bottom:20px;">Bus Details</h2>
 
-  <!-- Add Modal -->
-  <div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="background:#111827; color:#f9fafb; border-radius:12px;">
-        <div class="modal-header">
-          <h5 class="modal-title" id="assignModalLabel">Assign Driver to Bus</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form method="post" action="/assigndriver">
-            {% csrf_token %}
-            <!-- Bus Select -->
-            <div class="form-group mb-3">
-              <label for="busSelect">Select Bus</label>
-              <select id="busSelect" name="BusId" class="form-select" required>
-                <option value="">-- Choose a Bus --</option>
-                {% for i in buses %}
-                <option value="{{i.id}}" style="color: black;">{{ i.name }} - {{ i.Number }}</option>
-                {% endfor %}
-              </select>
-            </div>
+        <!-- Add Bus Form -->
+        <form method="post"  enctype="multipart/form-data">
+          {% csrf_token %}
 
-            <!-- Driver Select -->
-            <div class="form-group mb-3">
-              <label for="driverSelect">Select Driver</label>
-              <select id="driverSelect" name="DriverId" class="form-select" required>
-                <option value="">-- Choose a Driver --</option>
-                {% for i in drivers %}
-                <option value="{{i.id}}" style="color: black;">{{ i.name }} - {{ i.license }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Assign</button>
-            </div>
-          </form>
-        </div>
+          <div class="form-group">
+            <label for="name">Bus Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter bus name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="number">Bus Number</label>
+            <input type="text" id="number" name="Number" placeholder="Enter bus number" required>
+          </div>
+
+          <div class="form-group">
+            <label for="type">Bus Type</label>
+            <input type="text" id="type" name="Type" placeholder="e.g., AC / Non-AC / Sleeper" required>
+          </div>
+
+          <div class="form-group">
+            <label for="capacity">Capacity</label>
+            <input type="number" id="capacity" name="capacity" placeholder="Enter seating capacity" required>
+          </div>
+
+          <div class="form-group">
+            <label for="image">Bus Image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+          </div>
+
+          <div class="actions" style="border:none; background:transparent; justify-content:center; margin-top:15px;">
+            <button type="submit" class="edit-btn">Add Bus</button>
+          </div>
+
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Edit Modal -->
-  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="background:#111827; color:#f9fafb; border-radius:12px;">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editModalLabel">Edit Driver Assignment</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form method="post" id="editForm">
-            {% csrf_token %}
-            <!-- Bus Select -->
-            <div class="form-group mb-3">
-              <label for="editBusSelect">Select Bus</label>
-              <select id="editBusSelect" name="BusId" class="form-select">
-                <option value="">-- Choose a Bus --</option>
-                {% for i in all_buses %}
-                  <option value="{{ i.id }}" style="color:black;">{{ i.name }} - {{ i.Number }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Driver Select -->
-            <div class="form-group mb-3">
-              <label for="editDriverSelect">Select Driver</label>
-              <select id="editDriverSelect" name="DriverId" class="form-select">
-                <option value="">-- Choose a Driver --</option>
-                {% for i in all_drivers %}
-                  <option value="{{ i.id }}" style="color:black;">{{ i.name }} - {{ i.license }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-warning">Update</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-  const editButtons = document.querySelectorAll('.editBtn');
-  const editForm = document.getElementById('editForm');
-  const busSelect = document.getElementById('editBusSelect');
-  const driverSelect = document.getElementById('editDriverSelect');
-
-  editButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const assignmentId = btn.dataset.id;
-      const busId = btn.dataset.busid;
-      const driverId = btn.dataset.driverid;
-
-      // Set form action dynamically
-      editForm.action = `/assigndriver/edit/${assignmentId}/`;
-
-      // Select current values
-      busSelect.value = busId;
-      driverSelect.value = driverId;
-    });
-  });
-  </script>
 </body>
 </html>
