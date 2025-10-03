@@ -72,6 +72,7 @@ class WorkShopModel(models.Model):
     Age = models.IntegerField(null=True, blank=True)
     Phone = models.BigIntegerField(null=True, blank=True)
     Place = models.CharField(max_length=100, null=True, blank=True)
+    Email = models.EmailField(null=True, blank=True)
     WorshopName = models.CharField(max_length=100, null=True)
 
 
@@ -79,3 +80,10 @@ class AssignWorkshopModel(models.Model):
     BusId = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
     Workid = models.ForeignKey(WorkShopModel, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=100, null=True, blank=True)
+    Complaint = models.TextField(null=True, blank=True)
+
+
+class LocationTable(models.Model):
+    BUSID = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workshop Registration</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f6fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Prevent scrolling */
+    }
+
+    .form-container {
+      width: 480px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .form-container h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #2c3e50;
+      font-size: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      height: 40px;
+    }
+
+    .form-group input:focus {
+      border-color: #6d4df6;
+      outline: none;
+      box-shadow: 0 0 5px rgba(109, 77, 246, 0.3);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+ 
+    .save-btn {
+      background: #6d4df6;
+      color: white;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .save-btn:hover {
+      background: #5a3ff6;
+    }
+
+    .cancel-btn {
+      background: #e74c3c;
+      color: white;
+      padding: 10px 22px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .cancel-btn:hover {
+      background: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Workshop Registration</h2>
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" name="Fullname" placeholder="Enter your full name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" id="Email" name="Email" placeholder="Enter Your Email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="Age" placeholder="Enter your age" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="Phone" placeholder="+91 9876543210" required>
+      </div>
+
+      <div class="form-group">
+        <label for="place">Place</label>
+        <input type="text" id="place" name="Place" placeholder="Enter your place" required>
+      </div>
+
+      <div class="form-group">
+        <label for="workshopname">Workshop Name</label>
+        <input type="text" id="workshopname" name="WorshopName" placeholder="Enter workshop name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Password">Password</label>
+        <input type="password" id="Password" name="Password" placeholder="Enter your Password" required>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn">Register</button>
+        <a href="{% url 'login' %}" class="cancel-btn">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>

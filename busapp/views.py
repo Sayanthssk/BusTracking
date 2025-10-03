@@ -298,3 +298,138 @@ class EditAssignedDriver(View):
         if d.is_valid():
             d.save()
             return redirect('/assigndriver')
+        
+class AssignWorkshopView(View):
+    def get(self, request):
+        c = BusModel.objects.filter(OwnerId__Login_ID__id = request.session['login_id'])
+        d = WorkShopModel.objects.all()
+        e = AssignWorkshopModel.objects.all()
+        return render(request, 'BusOwner/RequestToWorkshop.html',{'buses':c, 'work':d, 'requests_list':e })    
+    def post(self, request):
+        c = AssignWorkShopForm(request.POST)
+        if c.is_valid():
+            reg = c.save(commit=False)
+            reg.status = 'Pending'
+            reg.save()
+            return redirect('/requesttoworkshop')
+
+
+
+# ///////////////////////////////////////////////////////////////// WorkShop /////////////////////////////////////////
+
+
+class WorkshopRegister(View):
+    def get(self, request):
+        return render(request, 'Workshop/WorkRegister.html')
+    def post(self, request):
+        c = WorkshopRegisterForm(request.POST)
+        if c.is_valid():
+            reg = c.save(commit=False)
+            reg.Login_Id = LoginModel.objects.create(username = reg.Email, password = request.POST['Password'], usertype = 'Workshop')
+            reg.save()
+            return redirect('/')
+        
+
+
+# /////////////////////////////////////////////////// API  //////////////////////////////////////////////////////////////
+
+from django.contrib.auth.hashers import make_password
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializer import *  # Assuming you will be using the serializer for output
+from rest_framework import status
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED
+)
+
+
+
+class LoginPage(APIView):
+    def post(self, request):
+        response_dict = {}
+
+        # Get data from the request
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username or not password:
+            response_dict["message"] = "failed"
+            return Response(response_dict, status=HTTP_400_BAD_REQUEST)
+
+        # Fetch the user
+        t_user = LoginModel.objects.filter(username=username, password__iexact=password).first()
+
+        if not t_user:
+            response_dict["message"] = "failed"
+            return Response(response_dict, status=HTTP_401_UNAUTHORIZED)
+
+        # Basic success response
+        response_dict["message"] = "success"
+        response_dict["login_id"] = t_user.id
+        response_dict["usertype"] = t_user.usertype
+
+        # If the user is a driver, fetch the bus ID
+        if t_user.usertype.lower() == "driver":
+            driver = DriverModel.objects.filter(LOGIN_ID=t_user).first()
+            if driver:
+                assignment = AssignBusDriver.objects.filter(DriverId=driver).first()
+                if assignment and assignment.BusId:
+                    response_dict["bus_id"] = assignment.BusId.id
+                else:
+                    response_dict["bus_id"] = None  # Driver has no assigned bus
+            else:
+                response_dict["bus_id"] = None
+
+        return Response(response_dict, status=HTTP_200_OK)
+
+
+
+from rest_framework import status
+from decimal import Decimal
+
+class UpdateBusRouteStatus(APIView):
+    def post(self, request):
+        """
+        Expects:
+        {
+            "bus_id": 1,
+            "status": "Started",
+            "latitude": 12.9716,   # required if status is Started
+            "longitude": 77.5946   # required if status is Started
+        }
+        """
+        print('--------------------------------------->', request.data)
+        bus_id = request.data.get("bus_id")
+        status_value = request.data.get("status")
+        latitude = request.data.get("latitude")
+        longitude = request.data.get("longitude")
+
+        if not bus_id or not status_value:
+            return Response({"message": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch the AssignBusRoute for this bus
+        try:
+            assignment = AssignBusRoute.objects.get(BusId_id=bus_id)
+        except AssignBusRoute.DoesNotExist:
+            return Response({"message": "Bus route assignment not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Update status
+        assignment.status = status_value
+        assignment.save()
+
+        # If trip has started, save latitude and longitude
+        if status_value.lower() == "started":
+            if latitude is None or longitude is None:
+                return Response({"message": "Latitude and Longitude required when starting trip"}, status=status.HTTP_400_BAD_REQUEST)
+
+            LocationTable.objects.update_or_create(
+                BUSID_id=bus_id,
+                defaults={
+                    "latitude": Decimal(latitude),
+                    "longitude": Decimal(longitude)
+                }
+            )
+
+        return Response({"message": f"Status updated to {status_value}"}, status=status.HTTP_200_OK)

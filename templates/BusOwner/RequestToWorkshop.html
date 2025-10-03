@@ -1,11 +1,114 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workshop Request</title>
+  <link rel="stylesheet" href="{% static 'css/dash.css' %}">
+  <style>
+    /* Extra styles for status colors */
+    .status-pending {
+      color: #f59e0b; /* amber */
+      font-weight: 600;
+    }
+    .status-completed {
+      color: #10b981; /* green */
+      font-weight: 600;
+    }
+    .status-progress {
+      color: #3b82f6; /* blue */
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-    
+
+  <!-- Header -->
+  <header>
+    <h1>Send Bus to Workshop</h1>
+    <a href="/ownerdash" class="add-bus-btn">← Back</a>
+  </header>
+
+  <div class="container">
+
+    <!-- Request Form Card -->
+    <div class="driver-card">
+      <div class="driver-info">
+        <h2>Create Workshop Request</h2>
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="bus">Select Bus</label>
+            <select name="BusId" id="bus" required>
+              <option value="">-- Choose Bus --</option>
+              {% for b in buses %}
+                <option value="{{ b.id }}" style="color: black;">{{ b.name }} - {{ b.Number }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="workshop">Select Workshop</label>
+            <select name="Workid" id="workshop" required>
+              <option value="">-- Choose Workshop --</option>
+              {% for w in work %}
+                <option value="{{ w.id }}" style="color: black;">{{ w.WorshopName }} - {{ w.Fullname }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="complaint">Complaint</label>
+            <textarea name="Complaint" id="complaint" rows="3" required
+              style="resize:none; padding:.6rem .8rem; border-radius:.5rem; 
+                     border:1px solid rgba(148,163,184,0.2); background:rgba(255,255,255,0.05); 
+                     color:#f9fafb; font-size:0.95rem;"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="edit-btn">Submit Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="driver-card" style="max-width:600px; height:auto;">
+      <div class="driver-info">
+        <h2>Request Status</h2>
+        {% if requests_list %}
+          <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+            <thead>
+              <tr style="color:#9ca3af;">
+                <th style="text-align:left; padding:6px;">Bus</th>
+                <th style="text-align:left; padding:6px;">Workshop</th>
+                <th style="text-align:left; padding:6px;">Complaint</th>
+                <th style="text-align:left; padding:6px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in requests_list %}
+              <tr>
+                <td style="padding:6px;">{{ req.BusId.bus_number }}</td>
+                <td style="padding:6px;">{{ req.Workid.name }}</td>
+                <td style="padding:6px;">{{ req.Complaint }}</td>
+                <td class="{% if req.status == 'Pending' %}status-pending
+                           {% elif req.status == 'Completed' %}status-completed
+                           {% else %}status-progress{% endif %}">
+                  {{ req.status }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No requests yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
 </body>
 </html>

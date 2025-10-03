@@ -34,4 +34,19 @@ urlpatterns = [
     path('assigndriver', AssignDriver.as_view(), name='assigndriver'),
     path('assigndriver/delete/<int:D_id>/', DeleteAssignedDriver.as_view(), name='delete'),
     path('assigndriver/edit/<int:D_id>/', EditAssignedDriver.as_view(), name='edit'),
+    path('requesttoworkshop', AssignWorkshopView.as_view(), name='requesttoworkshop'),
+
+
+
+
+
+# ////////////////////////////////////////////////////////////////////  WorkShop //////////////////////////////////////////////////////////
+
+    path('workregister', WorkshopRegister.as_view(), name='workregister'),
+
+
+    # /////////////////////////////////////////////////////////// User  ////////////////////////////////////////////////////////
+
+    path('loginapi/', LoginPage.as_view(), name='loginapi'),
+    path('tripstatusapi/', UpdateBusRouteStatus.as_view(), name='tripstatusapi'),
 ]

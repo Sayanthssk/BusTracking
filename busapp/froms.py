@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-
+ 
 from busapp.models import *
 
 
@@ -43,4 +43,17 @@ class AssignBusDriverForm(ModelForm):
 class ConductorForm(ModelForm):
     class Meta:
         model = ConductorModel
+        fields = '__all__'
+
+
+
+class WorkshopRegisterForm(ModelForm):
+    class Meta:
+        model = WorkShopModel
+        fields = '__all__'
+
+
+class AssignWorkShopForm(ModelForm):
+    class Meta:
+        model = AssignWorkshopModel
         fields = '__all__'

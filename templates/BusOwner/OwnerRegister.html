@@ -113,6 +113,20 @@
       background: #c0392b;
     }
 
+    .skip-btn {
+      background: #f39c12;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .skip-btn:hover {
+      background: #d68910;
+    }
+
     @media (max-width: 768px) {
       .form-row {
         flex-direction: column;
@@ -174,6 +188,7 @@
 
       <div class="form-actions">
         <button type="submit" class="save-btn">Register</button>
+        <a href="/workregister" class="skip-btn">Skip to Workshop</a>
         <a href="{% url 'login' %}" class="cancel-btn">Cancel</a>
       </div>
     </form>
