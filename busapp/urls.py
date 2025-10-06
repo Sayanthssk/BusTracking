@@ -45,8 +45,11 @@ urlpatterns = [
     path('workregister', WorkshopRegister.as_view(), name='workregister'),
 
 
-    # /////////////////////////////////////////////////////////// User  ////////////////////////////////////////////////////////
+    # /////////////////////////////////////////////////////////// driver  ////////////////////////////////////////////////////////
 
     path('loginapi/', LoginPage.as_view(), name='loginapi'),
     path('tripstatusapi/', UpdateBusRouteStatus.as_view(), name='tripstatusapi'),
+    path('viewassignedroute/<int:Bus_id>/', ViewAssignedRute.as_view(), name='viewassignedroute'),
+    path('viewbusstop/<int:Route_id>/', ViewBusStop.as_view(), name='viewbusstop'),
+    path('userreg/', UserReg_api.as_view(), name='userreg'),
 ]

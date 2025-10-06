@@ -391,39 +391,30 @@ from decimal import Decimal
 
 class UpdateBusRouteStatus(APIView):
     def post(self, request):
-        """
-        Expects:
-        {
-            "bus_id": 1,
-            "status": "Started",
-            "latitude": 12.9716,   # required if status is Started
-            "longitude": 77.5946   # required if status is Started
-        }
-        """
-        print('--------------------------------------->', request.data)
         bus_id = request.data.get("bus_id")
         status_value = request.data.get("status")
         latitude = request.data.get("latitude")
         longitude = request.data.get("longitude")
+        print('----------------------->', request.data)
 
         if not bus_id or not status_value:
-            return Response({"message": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Missing required fields"}, status=400)
 
-        # Fetch the AssignBusRoute for this bus
         try:
             assignment = AssignBusRoute.objects.get(BusId_id=bus_id)
         except AssignBusRoute.DoesNotExist:
-            return Response({"message": "Bus route assignment not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Bus route assignment not found"}, status=404)
 
         # Update status
         assignment.status = status_value
         assignment.save()
 
-        # If trip has started, save latitude and longitude
-        if status_value.lower() == "started":
+        # Update latitude & longitude for the bus
+        if status_value.lower() in ["started", "running"]:
             if latitude is None or longitude is None:
-                return Response({"message": "Latitude and Longitude required when starting trip"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Latitude and Longitude required when trip is running"}, status=400)
 
+            # Update existing LocationTable or create if not exists
             LocationTable.objects.update_or_create(
                 BUSID_id=bus_id,
                 defaults={
@@ -432,4 +423,52 @@ class UpdateBusRouteStatus(APIView):
                 }
             )
 
-        return Response({"message": f"Status updated to {status_value}"}, status=status.HTTP_200_OK)
+        return Response({"message": f"Status updated to {status_value}"}, status=200)
+    
+
+class ViewAssignedRute(APIView):
+    def get(self, request, Bus_id):
+        c = AssignBusRoute.objects.filter(BusId = Bus_id)
+        serializer = AssignedRoute(c, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class ViewBusStop(APIView):
+    def get(self, request, Route_id):
+        c = BusStopModel.objects.filter(route_id = Route_id)
+        serializer = BusStopSerializer(c, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserReg_api(APIView):
+    def post(self, request):
+        print("###################", request.data)
+
+        # Extract fields
+        email = request.data.get("Email")
+        password = request.data.get("Password")
+
+        # Build login data manually
+        login_data = {
+            "username": email,
+            "password": password,
+            "usertype": "USER"
+        }
+
+        # Initialize serializers
+        user_serial = User_Serializer(data=request.data)
+        login_serial = LoginSerializer(data=login_data)
+
+        data_valid = user_serial.is_valid()
+        login_valid = login_serial.is_valid()
+
+        if data_valid and login_valid:
+            login_profile = login_serial.save()   # saves LoginModel
+            user_serial.save(LOGINID=login_profile)  # saves UserTable with FK
+
+            return Response(user_serial.data, status=status.HTTP_201_CREATED)
+
+        return Response({
+            "login_error": login_serial.errors if not login_valid else None,
+            "user_error": user_serial.errors if not data_valid else None
+        }, status=status.HTTP_400_BAD_REQUEST)

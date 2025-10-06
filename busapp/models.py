@@ -87,3 +87,10 @@ class LocationTable(models.Model):
     BUSID = models.ForeignKey(BusModel, on_delete=models.CASCADE, null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+
+
+class UserTable(models.Model):
+    LOGINID = models.ForeignKey(LoginModel, on_delete=models.CASCADE, null=True, blank=True)
+    FullName = models.CharField(max_length=100, null=True, blank=True)
+    Email = models.EmailField(max_length=100, null=True, blank=True)
+    Phone = models.IntegerField(null=True, blank=True)
