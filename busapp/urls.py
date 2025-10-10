@@ -43,6 +43,10 @@ urlpatterns = [
 # ////////////////////////////////////////////////////////////////////  WorkShop //////////////////////////////////////////////////////////
 
     path('workregister', WorkshopRegister.as_view(), name='workregister'),
+    path('workdash', WorkShopDash.as_view(), name='workdash'),
+    path('appointment', ManageAppointmentView.as_view(), name='appointment'),
+    path('accept_appointment/<int:id>/', AcceptAppointment.as_view(), name='accept_appointment'),
+    path('reject_appointment/<int:id>/', RejectAppointment.as_view(), name='reject_appointment'),
 
 
     # /////////////////////////////////////////////////////////// driver  ////////////////////////////////////////////////////////
@@ -51,5 +55,8 @@ urlpatterns = [
     path('tripstatusapi/', UpdateBusRouteStatus.as_view(), name='tripstatusapi'),
     path('viewassignedroute/<int:Bus_id>/', ViewAssignedRute.as_view(), name='viewassignedroute'),
     path('viewbusstop/<int:Route_id>/', ViewBusStop.as_view(), name='viewbusstop'),
+
+
     path('userreg/', UserReg_api.as_view(), name='userreg'),
+    path('busstops/', ViewBusStops.as_view(), name='busstops'),
 ]

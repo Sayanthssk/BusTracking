@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkshopManager - Appointments</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .back-btn {
+            padding: 10px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .back-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, #ffffff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .appointments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .appointment-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        .appointment-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 15px 30px rgba(0, 255, 255, 0.2);
+        }
+        .appointment-time {
+            color: #00ffff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .appointment-client {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+        .appointment-service {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-accept {
+            background: linear-gradient(45deg, #00ffcc, #00aa88);
+            color: #000;
+        }
+        .btn-accept:hover {
+            background: linear-gradient(45deg, #00ffaa, #00dd99);
+            transform: scale(1.05);
+        }
+        .btn-reject {
+            background: linear-gradient(45deg, #ff0044, #aa0033);
+            color: #fff;
+        }
+        .btn-reject:hover {
+            background: linear-gradient(45deg, #ff3366, #cc0033);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">WorkshopManager</div>
+        <button class="back-btn" onclick="window.location='/workdash'">← Back to Dashboard</button>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Appointment Management</h1>
+        <div class="appointments-grid">
+           {% for i in c %}
+<div class="appointment-card">
+    <div class="appointment-time">{{ forloop.counter }}</div>
+    <div class="appointment-client">{{ i.BusId.name }}</div>
+    <div class="appointment-service">{{ i.Complaint }}</div>
+
+    {% if i.status == "Pending" %}
+        <div class="button-group">
+            <button class="btn btn-accept" onclick="handleAccept('{{ i.id }}')">Accept</button>
+            <button class="btn btn-reject" onclick="handleReject('{{ i.id }}')">Reject</button>
+        </div>
+    {% elif i.status == "Accepted" %}
+        <div style="color:#00ffcc; font-weight:600; margin-top:10px;">✅ Accepted</div>
+    {% elif i.status == "Rejected" %}
+        <div style="color:#ff3366; font-weight:600; margin-top:10px;">❌ Rejected</div>
+    {% else %}
+        <div style="color:#cccccc; font-weight:500; margin-top:10px;">⏳ {{ i.status }}</div>
+    {% endif %}
+</div>
+{% endfor %}
+
+        </div>
+    </div>
+
+    <script>
+        function handleAccept(id) {
+            if (confirm("Accept this appointment?")) {
+                fetch(`/accept_appointment/${id}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                }).then(() => location.reload());
+            }
+        }
+
+        function handleReject(id) {
+            if (confirm("Reject this appointment?")) {
+                fetch(`/reject_appointment/${id}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                }).then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>

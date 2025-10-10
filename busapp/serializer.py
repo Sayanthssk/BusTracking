@@ -28,3 +28,7 @@ class BusStopSerializer(ModelSerializer):
         model = BusStopModel
         fields = ['stopname']
 
+class BusRouteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusRoutesModel
+        fields = "__all__"

@@ -24,6 +24,8 @@ class LoginView(View):
                 return redirect('/admindash')
             elif login_obj.usertype == 'Owner':
                 return redirect('/ownerdash')
+            elif login_obj.usertype == 'Workshop':
+                return redirect('/workdash')
 
         except LoginModel.DoesNotExist:
             return redirect('login')                
@@ -329,6 +331,28 @@ class WorkshopRegister(View):
             reg.save()
             return redirect('/')
         
+class WorkShopDash(View):
+    def get(self, request):
+        return render(request, 'Workshop/WorkDash.html')
+        
+class ManageAppointmentView(View):
+    def get(self, request):
+        c = AssignWorkshopModel.objects.filter(Workid__Login_Id__id = request.session['login_id'])
+        return render(request, 'Workshop/ManageAppointment.html', {'c':c})
+    
+class AcceptAppointment(View):
+    def post(self, request, id):
+        c = AssignWorkshopModel.objects.get(id = id)
+        c.status = "Accepted"
+        c.save()
+        return redirect('/appointment')
+    
+class RejectAppointment(View):
+    def post(self, request, id):
+        c = AssignWorkshopModel.objects.get(id = id)
+        c.status = "Rejected"
+        c.save()
+        return redirect('/appointment')
 
 
 # /////////////////////////////////////////////////// API  //////////////////////////////////////////////////////////////
@@ -336,7 +360,7 @@ class WorkshopRegister(View):
 from django.contrib.auth.hashers import make_password
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializer import *  # Assuming you will be using the serializer for output
+from .serializer import *
 from rest_framework import status
 from rest_framework.status import (
     HTTP_200_OK,
@@ -393,7 +417,7 @@ class UpdateBusRouteStatus(APIView):
     def post(self, request):
         bus_id = request.data.get("bus_id")
         status_value = request.data.get("status")
-        latitude = request.data.get("latitude")
+        latitude = request.data.get("latitude") 
         longitude = request.data.get("longitude")
         print('----------------------->', request.data)
 
@@ -472,3 +496,58 @@ class UserReg_api(APIView):
             "login_error": login_serial.errors if not login_valid else None,
             "user_error": user_serial.errors if not data_valid else None
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rapidfuzz import fuzz
+
+class ViewBusStops(APIView):
+    def get(self, request):
+        # Fetch all stop names
+        stops = BusStopModel.objects.values_list('stopname', flat=True)
+
+        unique_stops = []
+        for stop in stops:
+            if not stop:
+                continue
+            stop_clean = stop.strip()
+
+            # Fuzzy compare with existing unique stops
+            is_similar = any(
+                fuzz.partial_ratio(stop_clean.lower(), existing.lower()) > 85
+                for existing in unique_stops
+            )
+
+            if not is_similar:
+                unique_stops.append(stop_clean)
+
+        # Return as key-value pair
+        return Response({"bus_stops": unique_stops}, status=HTTP_200_OK)
+
+
+class FetchRoutesByStop(APIView):
+    def get(self, request):
+        stop_name = request.query_params.get("stopname")
+
+        if not stop_name:
+            return Response({"error": "stopname parameter is required"}, status=HTTP_400_BAD_REQUEST)
+
+        stop_name = stop_name.strip().lower()
+
+        # Step 1: Find all stops similar to the given name (fuzzy match)
+        all_stops = BusStopModel.objects.select_related('route_id').all()
+        matched_stops = [
+            stop for stop in all_stops
+            if stop.stopname and fuzz.partial_ratio(stop_name, stop.stopname.lower()) > 85
+        ]
+
+        if not matched_stops:
+            return Response({"routes": []}, status=HTTP_200_OK)
+
+        # Step 2: Collect all unique route IDs containing those stops
+        route_ids = list({stop.route_id.id for stop in matched_stops if stop.route_id})
+
+        routes = BusRoutesModel.objects.filter(id__in=route_ids)
+
+        # Step 3: Serialize and return as key-value
+        serializer = BusRouteSerializer(routes, many=True)
+        return Response({"routes": serializer.data}, status=HTTP_200_OK)

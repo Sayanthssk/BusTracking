@@ -91,8 +91,8 @@
             <tbody>
               {% for req in requests_list %}
               <tr>
-                <td style="padding:6px;">{{ req.BusId.bus_number }}</td>
-                <td style="padding:6px;">{{ req.Workid.name }}</td>
+                <td style="padding:6px;">{{ req.BusId.Number }}</td>
+                <td style="padding:6px;">{{ req.Workid.WorshopName }}</td>
                 <td style="padding:6px;">{{ req.Complaint }}</td>
                 <td class="{% if req.status == 'Pending' %}status-pending
                            {% elif req.status == 'Completed' %}status-completed
