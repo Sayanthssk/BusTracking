@@ -2,6 +2,8 @@
 from django.urls import path
 
 from busapp.views import *
+from . import views
+
 
 urlpatterns = [
     path('', LoginView.as_view(), name='login'),
@@ -59,4 +61,9 @@ urlpatterns = [
 
     path('userreg/', UserReg_api.as_view(), name='userreg'),
     path('busstops/', ViewBusStops.as_view(), name='busstops'),
+    path('shops/', WorkShopViewAPI.as_view(), name='shops'),
+    path('routes_by_stop/', FetchRoutesByStop.as_view(), name='routes_by_stop'),
+    path('buses_by_route/<int:id>', ViewBusByRoute.as_view(), name='buses_by_route'),
+    path('track_bus/<int:id>/', TrackBusAPI.as_view(), name='buses_by_route'),
+
 ]

@@ -502,38 +502,44 @@ from rapidfuzz import fuzz
 
 class ViewBusStops(APIView):
     def get(self, request):
-        # Fetch all stop names
-        stops = BusStopModel.objects.values_list('stopname', flat=True)
+        # Fetch all stop names and IDs
+        stops = BusStopModel.objects.values('id', 'stopname')
 
         unique_stops = []
-        for stop in stops:
-            if not stop:
-                continue
-            stop_clean = stop.strip()
 
-            # Fuzzy compare with existing unique stops
+        for stop in stops:
+            stop_id = stop['id']
+            stop_name = stop['stopname']
+
+            if not stop_name:
+                continue
+
+            stop_clean = stop_name.strip()
+
             is_similar = any(
-                fuzz.partial_ratio(stop_clean.lower(), existing.lower()) > 85
+                fuzz.partial_ratio(stop_clean.lower(), existing['stopname'].lower()) > 85
                 for existing in unique_stops
             )
 
             if not is_similar:
-                unique_stops.append(stop_clean)
+                unique_stops.append({
+                    "id": stop_id,
+                    "stopname": stop_clean
+                })
 
-        # Return as key-value pair
         return Response({"bus_stops": unique_stops}, status=HTTP_200_OK)
 
 
 class FetchRoutesByStop(APIView):
     def get(self, request):
         stop_name = request.query_params.get("stopname")
+        print('------------------------',stop_name)
 
         if not stop_name:
             return Response({"error": "stopname parameter is required"}, status=HTTP_400_BAD_REQUEST)
 
         stop_name = stop_name.strip().lower()
 
-        # Step 1: Find all stops similar to the given name (fuzzy match)
         all_stops = BusStopModel.objects.select_related('route_id').all()
         matched_stops = [
             stop for stop in all_stops
@@ -543,11 +549,34 @@ class FetchRoutesByStop(APIView):
         if not matched_stops:
             return Response({"routes": []}, status=HTTP_200_OK)
 
-        # Step 2: Collect all unique route IDs containing those stops
         route_ids = list({stop.route_id.id for stop in matched_stops if stop.route_id})
 
         routes = BusRoutesModel.objects.filter(id__in=route_ids)
 
-        # Step 3: Serialize and return as key-value
         serializer = BusRouteSerializer(routes, many=True)
         return Response({"routes": serializer.data}, status=HTTP_200_OK)
+    
+
+class ViewBusByRoute(APIView):
+    def get(self, request, id):
+        assigned_buses = AssignBusRoute.objects.filter(RouteId__id=id)
+        serializer = BusByRouteserializer(assigned_buses, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
+    
+
+class TrackBusAPI(APIView):
+    def get(self, request, id):
+        c = LocationTable.objects.filter(BUSID__id = id)
+        serializer = TrackSerializer(c, many=True)
+        print('-------------------------------', serializer.data)
+        return Response(serializer.data, status=HTTP_200_OK)
+    
+
+class WorkShopViewAPI(APIView):
+    def get(self, request):
+        c = WorkShopModel.objects.all()
+        ser = WorkSerializer(c, many=True)
+        return Response(ser.data, status=HTTP_200_OK)
+    
+
+

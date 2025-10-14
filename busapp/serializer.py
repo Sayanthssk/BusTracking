@@ -32,3 +32,26 @@ class BusRouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusRoutesModel
         fields = "__all__"
+
+
+class BusByRouteserializer(ModelSerializer):
+    Bus_name = serializers.CharField(source='BusId.name')
+    Bus_no = serializers.CharField(source='BusId.Number')
+    Bus_type = serializers.CharField(source='BusId.Type')
+    Bus_capacity = serializers.CharField(source='BusId.capacity')
+    Bus_image = serializers.FileField(source='BusId.image')
+    class Meta:
+        model = AssignBusRoute
+        fields = ['BusId', 'RouteId','Bus_name','Bus_no','Bus_type','Bus_capacity','Bus_image']
+
+class TrackSerializer(ModelSerializer):
+    bus_name = serializers.CharField(source = 'BUSID.name')
+    bus_image = serializers.FileField(source = 'BUSID.image')
+    class Meta:
+        model = LocationTable
+        fields = ['latitude', 'longitude', 'bus_name', 'bus_image']
+
+class WorkSerializer(ModelSerializer):
+    class Meta:
+        model = WorkShopModel
+        fields = "__all__"
